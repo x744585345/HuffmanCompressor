@@ -28,7 +28,7 @@ def compress_test():
     print "done"
 
 def decompress_test():
-    decompress("unit.txt.hfz")
+    decompress("test.txt.hfz")
 
 if __name__ == "__main__":
     decompress_test()

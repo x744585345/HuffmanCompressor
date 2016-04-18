@@ -154,7 +154,7 @@ def decompress(file_path):
     *解码
     '''
 	
-    file_handler = open(file_path)
+    file_handler = open(file_path, "rb")
         #读取编码字典长度
     size = struct.unpack("I", file_handler.read(4))[0]
         #还原码表字典
@@ -167,7 +167,7 @@ def decompress(file_path):
         
     data_list = []
         #继续读完内容字节
-    while data != '':
+    while not data == '':
             #将二进制数据还原为十进制的哈夫曼编码
         bin_data = bin(struct.unpack("B", data)[0])[2 : ]
         data_list.append(bin_data)
