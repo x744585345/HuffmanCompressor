@@ -74,7 +74,9 @@ def count_letter(file_path):
             for letter in line:
                 #查询字典， 如果字符已经存在就+1 ，否则添加该键并键值+1
                 letter_map[letter] = letter_map.get(letter, 0) + 1
-    
+##    #test code
+##    print letter_map
+##    print origin_data
     return letter_map, origin_data
 
 def create_node_list(letter_map):
@@ -126,20 +128,23 @@ def store_file(file_path, huff_map, code_data):
         
         #借助picke将字典转换为二进制字符串
         huff_map_bytes = pickle.dumps(huff_map)
+        print huff_map_bytes, "-----------------"
         #在文件头部存储字典字节流的长度
         file_handler.write(struct.pack("I", len(huff_map_bytes)))
+        print struct.pack("I", len(huff_map_bytes)) , "-----------------"
         #将字典作为一个字符串写入文件头
-        file_handler.write(struct.pack("%ds" % (len(huff_map_bytes), huff_map_bytes)))
+        file_handler.write(struct.pack("%ds" % len(huff_map_bytes), huff_map_bytes))
+        print struct.pack("%ds" % len(huff_map_bytes), huff_map_bytes), "-----------------"
         #在文件头部写入文本二进制流的字节长度
-        file_handler.write(struct.pack("B",len(code_data) % 8))
-        
+        file_handler.write(struct.pack("B", len(code_data) % 8))
+        print struct.pack("B", len(code_data) % 8), "-----------------"
         #字节流的字节数
         length = len(code_data)
         for i in xrange(0, length, 8):
             if i + 8 < length:
-                file_handler.write(struct.pack("B", int(code_data[i : i+8]), 2))
+                file_handler.write(struct.pack("B", int(code_data[i : i+8], 2)))
             else:
-                file_handler.write(struct.pack("B", int(code_data[i :]), 2))
+                file_handler.write(struct.pack("B", int(code_data[i:], 2)))
     except Exception as e:
         print e
     finally:
@@ -148,29 +153,28 @@ def decompress(file_path):
     '''
     *解码
     '''
-    try:
-        file_handler = open(file_path)
+	
+    file_handler = open(file_path)
         #读取编码字典长度
-        size = struct.unpack("I", file_handler.read(4))[0]
+    size = struct.unpack("I", file_handler.read(4))[0]
         #还原码表字典
-        huff_map = pickle.loads(file_handler.read(size))[0]
+    huff_map = pickle.loads(file_handler.read(size))
         #读取字符流长度       
-        left = struct.unpack("B", file_handler.read(1))[0] 
+    left = struct.unpack("B", file_handler.read(1))[0] 
         
         #先读一个内容字节
-        data = file_handler.read(1)
+    data = file_handler.read(1)
         
-        data_list = []
+    data_list = []
         #继续读完内容字节
-        while data != '':
+    while data != '':
             #将二进制数据还原为十进制的哈夫曼编码
-            bin_data = bin(struct.unpack("B", data)[0])[2 : ]
-            data_list.append(bin_data)
-            data = file_handler.read(1)
-    except Exception as e:
-        e.trace()
-    finally:
-        file_handler.close()
+        bin_data = bin(struct.unpack("B", data)[0])[2 : ]
+        data_list.append(bin_data)
+        data = file_handler.read(1)
+    
+
+    file_handler.close()
         
     for i in xrange(len(data_list) - 1):
         data_list[i] = "%s%s" % ('0' * (8 - len(data_list[i])), data_list[i])
